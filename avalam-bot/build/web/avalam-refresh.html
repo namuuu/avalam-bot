@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- **** H E A D **** -->
+<head>	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Avalam-refresh</title>
+
+<style>
+
+	table {
+		border:1px solid black;
+		padding:3px;width:60%;
+		margin:auto;	
+		text-align:center;
+	}
+
+	th,td {
+		border:1px solid black;
+		padding:3px;
+	}
+
+	#avalam{
+		width:900px;
+		height:750px;
+		margin:auto;
+		position:relative;
+	}
+		
+	.evolution {
+		background-color:black;color:white;
+		font-weight:bold;
+		padding: 2px;
+		position:absolute; 
+		border: 1px solid black;
+		border-radius: 10% 30% 50% 70%;
+	}
+
+	#palette {display:none;}
+	.rouge, .jaune {position:absolute;z-index:10; }
+	.indice {position:absolute;top:50px;left:65px;}
+	.nombre {position:absolute;top:22px;left:28px;
+		font-family:courier;font-weight:bold;font-size:18pt;}	
+	.rouge img, .jaune img {width:70px;height:70px;}
+
+	#refreshtime {width:70px;}
+</style>
+
+<script src="js/jquery.js"></script>
+<script src="js/avalam.js"></script>
+
+<script>
+
+// version 1/02/2022 
+
+/* Evolution : ajout des champs suivants : 
+“bonusJ”:1,
+“malusJ”:3,
+“bonusR”:1,
+“malusR”:2,
+*/
+var position = [];
+
+
+var filename="../exemples/refresh-data.js"; // les chemins des fichiers sont fournis relativement au répertoire data
+var refreshtime=1;
+var couleurs = ["aucun","jaune","rouge"];
+var colrefs = []; 
+var evolution = {bonusJ:false, malusJ:false, bonusR:false, malusR:false}; 
+
+function showEvolution() {
+	// nécessite d'accéder à un objet evolution
+	var n,delta,sdelta; 
+	$(".evolution").remove();
+	// afficher les bonus/malus et met à jour les scores
+	for(i=0;i<48;i++) {
+		//console.log(i); 
+		delta = (evolution.bonusJ===i)+(evolution.bonusR===i)-(evolution.malusJ===i)-(evolution.malusR===i); 
+		//console.log(delta); 
+		if (delta>0) sdelta = "+"+delta; 
+		if (delta<0) sdelta = delta;  
+		
+		n = $("<div>").append(sdelta).addClass("evolution");
+		n.offset({left:(topo[i].cx-9), top:topo[i].cy-110});
+		if (delta !=0) {
+			//console.log(); 
+			$("#avalam").append(n);
+		}
+	}
+}
+
+
+$(document).ready(function(){
+	var jaune = $(".jaune"); 
+	var rouge = $(".rouge"); 
+	var n; 
+
+	$("#filename").val(filename);
+	$("#refreshtime").val(refreshtime);
+
+	for(i=0;i<topo.length;i++) {
+		if (topo[i].col == "2") 
+			n = rouge.clone(true);  
+		else 
+			n = jaune.clone(true);  
+
+		n.offset({left:(topo[i].cx-82), top:topo[i].cy-139});
+		n.append('<div class="indice">' + i + '</div>');
+		pos = n.offset();
+		//$(".nombre",n).html("1");
+
+		$("#avalam").append(n);
+		colrefs.push(n);
+	}
+
+	window.setTimeout(refresh,0);
+
+	$("#filename").change(function (){
+		filename = $(this).val();
+		$(this).animate({opacity: 0.25},1000, function(){
+			$(this).animate({opacity: 1});
+		});
+	});
+
+	$("#refreshtime").change(function (){
+		refreshtime = $(this).val();
+		$(this).animate({opacity: 0.25},1000, function(){
+			$(this).animate({opacity: 1});
+		});
+	});
+
+});
+
+function traiterJson(oRep){
+	$("#trait").text(couleurs[oRep.trait]);
+	$("#scoreJ").text(oRep.scoreJ);
+	$("#scoreJ5").text(oRep.scoreJ5);
+	$("#scoreR").text(oRep.scoreR);
+	$("#scoreR5").text(oRep.scoreR5);
+	
+	evolution.bonusJ = oRep.bonusJ; 
+	evolution.malusJ = oRep.malusJ; 
+	evolution.bonusR = oRep.bonusR; 
+	evolution.malusR = oRep.malusR; 
+
+	var i; 
+	for(i=0;i<oRep.cols.length;i++){
+
+		//console.log("col " + i + " : " + oRep.cols[i].nb + " : " + oRep.cols[i].couleur);
+
+		if (oRep.cols[i].couleur == "0")
+			colrefs[i].css({display:"none"});				
+		else 
+			colrefs[i].css({display:"block"});
+
+		if (oRep.cols[i].couleur == "1") {
+			//1: jaune
+				colrefs[i].addClass("jaune"); 
+				$("img",colrefs[i]).attr("src","ressources/jaune.png");
+		}
+
+		if (oRep.cols[i].couleur == "2") {
+			//2: rouge
+				colrefs[i].addClass("rouge"); 
+				$("img",colrefs[i]).attr("src","ressources/rouge.png");
+		}
+
+		
+		if (oRep.cols[i].nb == "0")							// tomnab 17/04
+			colrefs[i].css({display:"none"});		
+
+		$(".nombre",colrefs[i]).html(oRep.cols[i].nb);
+		if (oRep.cols[i].nb > 1) 
+			$(".nombre",colrefs[i]).css({display:"block"});
+		else 
+			$(".nombre",colrefs[i]).css({display:"none"});	
+	}
+	
+	showEvolution();
+
+	window.setTimeout(refresh,refreshtime*1000);
+}
+
+function refresh() {
+	console.log("refresh");
+	getJson();
+}
+
+function getJson() {
+	var scriptElement = document.createElement('script');
+	scriptElement.src = "data/" + filename + '?cle=' + Math.random();
+	document.body.appendChild(scriptElement);
+}
+
+</script>
+
+</head>
+
+<body>
+
+<h1>Avalam-refresh</h1>
+
+
+<p></p>
+
+<table>
+<tr>
+<th>Trait</th><th>Jaunes</th><th>Rouges</th>
+</tr>
+<tr>
+<td><span id="trait"></span></td>
+<td> <span id="scoreJ">24</span> (<span id="scoreJ5">0</span>)</td>
+<td> <span id="scoreR">24</span> (<span id="scoreR5">0</span>)</td>
+</tr>
+</table>
+
+<div id="avalam">
+	<img src="ressources/avalam_numerote.png" />
+</div>
+
+<div style="text-align:center;">
+Sync avec fichier (sous data/): <input type="text" id="filename"/> 
+Fr&eacute;quence raffraichissement : <input type="text" id="refreshtime"/>
+</div>
+
+<div id="palette">
+	<div class="jaune col">
+		<img src="ressources/jaune.png" />	
+		<div class="nombre"></div>	
+	</div>
+	<div class="rouge col">
+		<img src="ressources/rouge.png" />
+		<div class="nombre"></div>
+	</div>
+</div>
+
+</body>
+

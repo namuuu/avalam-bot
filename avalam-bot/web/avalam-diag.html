@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- **** H E A D **** -->
+<head>	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Avalam-diag</title>
+
+<style>
+	#scores {
+		position:absolute; 
+		top:10px;
+		right:10px;
+	}
+	table {
+		border:1px solid black;
+		padding:3px;width:60%;
+		margin:auto;	
+		text-align:center;
+	}
+
+	th,td {
+		border:1px solid black;
+		padding:3px;
+	}
+	
+	#avalam{
+		width:900px;
+		height:750px;
+		margin:auto;
+		position:relative;
+	}
+	
+	.evolution {
+		background-color:black;color:white;
+		font-weight:bold;
+		padding: 2px;
+		position:absolute; 
+		border: 1px solid black;
+		border-radius: 10% 30% 50% 70%;
+	}
+
+
+	#palette {display:none;}
+	.rouge, .jaune {position:absolute;z-index:10; }
+	.indice {position:absolute;top:50px;left:65px;}
+	.nombre {position:absolute;top:22px;left:28px;
+		font-family:courier;font-weight:bold;font-size:18pt;}	
+	.rouge img, .jaune img {width:70px;height:70px;}
+
+	#legende, #notes, #divFen {
+		text-align:center;
+		border:1px solid black; 
+		padding :5px;
+		margin:5px;
+	}
+
+</style>
+
+<script src="js/jquery.js"></script>
+<script src="js/avalam.js"></script>
+
+
+<script>
+
+// version 1/02/2022
+ 
+var evolution = {bonusJ:false, malusJ:false, bonusR:false, malusR:false}; 
+var position = [];
+var filename="../exemples/diag_initial.js"; // les chemins des fichiers sont fournis relativement au répertoire data
+var couleurs = ["aucun","jaunes","rouges"];
+var colrefs = []; 
+
+// variables pour les déplacements
+var modeDeplacement = false;
+var indiceDepart=false; 
+var colDepart=false; 
+
+function showEvolution() {
+	var n,delta,sdelta; 
+	$(".evolution").remove();
+	// afficher les bonus/malus et met à jour les scores
+	for(i=0;i<48;i++) {
+		//console.log(i); 
+		delta = (evolution.bonusJ===i)+(evolution.bonusR===i)-(evolution.malusJ===i)-(evolution.malusR===i); 
+		//console.log(delta); 
+		if (delta>0) sdelta = "+"+delta; 
+		if (delta<0) sdelta = delta;  
+		
+		n = $("<div>").append(sdelta).addClass("evolution");
+		n.offset({left:(topo[i].cx-9), top:topo[i].cy-110});
+		if (delta !=0) {
+			//console.log(); 
+			$("#avalam").append(n);
+		}
+	}
+}
+
+function updateScores() {
+	//console.log(position);
+	var i; 
+	var nbJ=0, nbJ5=0, nbR=0, nbR5=0;
+	for(i=0;i<48;i++) {
+		if ((position[i].col == "1") && (position[i].n >0))  { // jaune 
+			nbJ++; 
+			if (position[i].n == 5) nbJ5++; 
+		}
+		if ((position[i].col == "2") && (position[i].n >0)) { // rouge 
+			nbR++; 
+			if (position[i].n == 5) nbR5++; 
+		}
+	}
+	
+	// mettre à jour les scores evolution
+	if (position[evolution.bonusR].col == "1") {console.log("incJ"); nbJ++;}
+	if (position[evolution.bonusR].col == "2") {console.log("incR"); nbR++;} 
+	if (position[evolution.bonusJ].col == "1") {console.log("incJ"); nbJ++;}
+	if (position[evolution.bonusJ].col == "2") {console.log("incR"); nbR++;}
+	if (position[evolution.malusR].col == "1") {console.log("decJ"); nbJ--;}
+	if (position[evolution.malusR].col == "2") {console.log("decR"); nbR--;}
+	if (position[evolution.malusJ].col == "1") {console.log("decJ"); nbJ--;}
+	if (position[evolution.malusJ].col == "2") {console.log("decR"); nbR--;}
+	
+	$("#scoreJ").text(nbJ);
+	$("#scoreJ5").text(nbJ5);
+	$("#scoreR").text(nbR);
+	$("#scoreR5").text(nbR5);
+}
+
+$(document).ready(function(){
+	var jaune = $(".jaune"); 
+	var rouge = $(".rouge"); 
+	var n; 
+
+	$("#filename").val(filename);
+
+	$("#btnLoad").click(function(){
+		getJson($("#filename").val()); 
+	});
+
+
+	for(i=0;i<topo.length;i++) {
+		if (topo[i].col == "r") 
+			n = rouge.clone(true);  
+		else 
+			n = jaune.clone(true);  
+
+		n.offset({left:(topo[i].cx-82), top:topo[i].cy-139});
+		n.append('<div class="indice">' + i + '</div>');
+		pos = n.offset();
+		
+		n.data({indice:i, left:pos.left, top:pos.top}); // pour jouer
+
+		$("#avalam").append(n);
+		colrefs.push(n);
+
+		// Souci : dans topo : r ou j; dans flux json : 1 ou 2 
+
+		position.push({n:1,col:topo[i].col }); // pour jouer 
+	}
+
+	getJson(filename); 
+
+
+	// Code permettant de jouer sur le diagramme 
+		
+	$(document).on("mouseover",".jaune",function() {
+		if (position[$(this).data("indice")].n == 5) return; 
+		if (!modeDeplacement)
+			$("img",$(this)).attr("src","ressources/jaune2.png");
+		else if (topo[indiceDepart].adj.indexOf($(this).data("indice")) != -1)
+			$("img",$(this)).attr("src","ressources/jaune2.png");
+	});
+	$(document).on("mouseover",".rouge",function() {
+		if (position[$(this).data("indice")].n == 5) return;
+		if (!modeDeplacement)
+			$("img",$(this)).attr("src","ressources/rouge2.png");
+		else if (topo[indiceDepart].adj.indexOf($(this).data("indice")) != -1)
+			$("img",$(this)).attr("src","ressources/rouge2.png");
+	});
+	$(document).on("mouseout",".jaune",function() {
+		// on désactive ceux que l'on veut SAUF celui qui est en cours de déplacement 
+		if ((!modeDeplacement) || (indiceDepart != $(this).data("indice")))
+			$("img",$(this)).attr("src","ressources/jaune.png");
+	});
+	$(document).on("mouseout",".rouge",function() {
+		if ((!modeDeplacement) || (indiceDepart != $(this).data("indice")))
+			$("img",$(this)).attr("src","ressources/rouge.png");
+	});
+
+	$(".col").click(function(){
+		var indice = $(this).data("indice");
+		console.log("couleur:" + position[indice].col + " nombre:" + position[indice].n);
+
+		if (!modeDeplacement) { // debut deplacement 
+			console.log("debut deplacement");
+			modeDeplacement = true; 
+			indiceDepart = indice;
+			colDepart = $(this);
+			$(this).data({"deplacement":true});
+			return; 
+		} // FIN:debut déplacement
+		else { // fin déplacement 
+			if (indice == indiceDepart){
+				// annulation
+				colDepart.data({"deplacement":false});
+				console.log("annulation");
+				modeDeplacement = false;
+				$(".col").mouseout();
+				return; 
+			}
+			else { // validation
+				console.log("fin de deplacement de " + indiceDepart + " vers " + indice);
+				// depart: combien, col ? 
+				console.log("depart: n=" + position[indiceDepart].n + " col=" + position[indiceDepart].col);
+				// arrivee : combien, col ? 
+				console.log("arrivee: n=" + position[indice].n + " col=" + position[indice].col);
+
+				// Vérification légal (nb) ?
+				if (position[indiceDepart].n + position[indice].n > 5) {
+					console.log("interdiction (nb) ! ");
+					colDepart.data({"deplacement":false});
+					modeDeplacement = false;
+					$(".col").mouseout();
+					return; 
+				}
+
+				// Vérification légal (adj) ?
+				if (topo[indiceDepart].adj.indexOf(indice) == -1) {
+					console.log("interdiction (adj) ! ");
+					colDepart.data({"deplacement":false});
+					modeDeplacement = false;
+					$(".col").mouseout();
+					return; 
+				}
+
+				// suppression col. depart 
+				//colDepart.hide("slow");
+				//colDepart.offset({left:$(this).data("left"), top:$(this).data("top")});
+				//colDepart.show("slow");
+
+				//colDepart.remove();
+				colDepart.css({display:"none"}); // tomnab 17/04
+
+				// suppression col arrivee - remplacement par pile de départ ! 
+				$(this).removeClass("jaune").removeClass("rouge");  
+				if (position[indiceDepart].col == "1") {
+					$(this).addClass("jaune"); 
+					$("img",$(this)).attr("src","ressources/jaune.png");
+					position[indice].col = "1";
+				} else {
+					$(this).addClass("rouge");
+					$("img",$(this)).attr("src","ressources/rouge.png");
+					position[indice].col = "2";
+				}
+					
+				$(".indice",$(this)).html(indice);
+			
+				position[indice].n = position[indiceDepart].n + position[indice].n;
+				position[indiceDepart].col = false;
+				position[indiceDepart].n = 0;
+				
+				// mise à jour de evolution
+				if (evolution.bonusR == indiceDepart) evolution.bonusR=indice;
+				if (evolution.bonusJ == indiceDepart) evolution.bonusJ=indice;
+				if (evolution.malusR == indiceDepart) evolution.malusR=indice;
+				if (evolution.malusJ == indiceDepart) evolution.malusJ=indice;
+				
+				showEvolution();
+				updateScores();
+				if ($(".trait:first").text() == "jaunes") $(".trait").text("rouges");
+				else  $(".trait").text("jaunes");
+				
+				$(".nombre",$(this)).html(position[indice].n);
+				if (position[indice].n>1) 
+					$(".nombre",$(this)).css({display:"block"}); // tomnab 17/04
+								
+				//console.log(JSON.stringify(position));
+
+				modeDeplacement = false;
+				$(".col").mouseout();
+
+			}	//FIN:validation			
+		} // FIN:fin deplacement
+	});
+
+
+
+
+});
+
+
+function getJson(filename) {
+	var scriptElement = document.createElement('script');
+	scriptElement.src = "data/" + filename + '?cle=' + Math.random();
+	document.body.appendChild(scriptElement);
+}
+
+
+function traiterJson(oRep){
+	$(".trait").text(couleurs[oRep.trait]);
+	$("#numDiag").text(oRep.numDiag);
+	$("#notes").html(oRep.notes);
+	
+	evolution.bonusJ = oRep.bonusJ; 
+	evolution.malusJ = oRep.malusJ; 
+	evolution.bonusR = oRep.bonusR; 
+	evolution.malusR = oRep.malusR;
+
+	if (oRep.fen != undefined) {
+		$("#fen").text(oRep.fen);
+		$("#divFen").show();
+	} else $("#divFen").hide();
+	
+	var i; 
+
+	position = []; // pour jouer 
+	for(i=0;i<oRep.cols.length;i++){
+
+		position.push({n:oRep.cols[i].nb,col:oRep.cols[i].couleur }); // pour jouer 
+
+		//console.log("col " + i + " : " + oRep.cols[i].nb + " : " + oRep.cols[i].couleur);
+		
+		if (oRep.cols[i].couleur == "0")							// tomnab 17/04: remplacement de .couleur par .nb
+			colrefs[i].css({display:"none"});				
+		else 
+			colrefs[i].css({display:"block"});
+
+		if (oRep.cols[i].couleur == "1") {
+			//1: jaune
+				colrefs[i].addClass("jaune");colrefs[i].removeClass("rouge"); 
+				$("img",colrefs[i]).attr("src","ressources/jaune.png");
+		}
+
+		if (oRep.cols[i].couleur == "2") {
+			//2: rouge
+				colrefs[i].addClass("rouge"); colrefs[i].removeClass("jaune");
+				$("img",colrefs[i]).attr("src","ressources/rouge.png");
+		}
+
+
+		if (oRep.cols[i].nb == "0")							// tomnab 17/04
+			colrefs[i].css({display:"none"});				
+
+		$(".nombre",colrefs[i]).html(oRep.cols[i].nb);
+		if (oRep.cols[i].nb > 1) 
+			$(".nombre",colrefs[i]).css({display:"block"});
+		else 
+			$(".nombre",colrefs[i]).css({display:"none"});
+	}
+	
+	showEvolution();
+	updateScores();
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+
+<h1>Avalam-diag</h1>
+Lire le fichier (sous data/) : <input type="text" id="filename"/> 
+<input type="button" id="btnLoad" value="relire fichier"/>
+
+<div id="scores">
+	<table>
+	<tr>
+	<th>Trait</th><th>Jaunes</th><th>Rouges</th>
+	</tr>
+	<tr>
+	<td><span class="trait">jaunes</span></td>
+	<td> <span id="scoreJ">24</span> (<span id="scoreJ5">0</span>)</td>
+	<td> <span id="scoreR">24</span> (<span id="scoreR5">0</span>)</td>
+	</tr>
+	</table>
+</div>
+
+<hr /> 
+
+
+<div id="avalam">
+	<img src="ressources/avalam_numerote.png" />
+	<div id="legende">
+		<b>Diagramme</b> <span id="numDiag"></span>
+		&nbsp;-&nbsp; <b>Trait</b> : <span class="trait"></span>
+	</div>
+	<div id="divFen">
+		<b>Fen :</b> <span id="fen"></span>
+	</div>
+	<div id="notes">
+		Placer ici vos notes
+	</div>
+</div>
+
+
+
+
+
+<div id="palette">
+	<div class="jaune col">
+		<img src="ressources/jaune.png" />	
+		<div class="nombre"></div>	
+	</div>
+	<div class="rouge col">
+		<img src="ressources/rouge.png" />
+		<div class="nombre"></div>
+	</div>
+</div>
+
+</body>
+
