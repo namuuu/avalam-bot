@@ -1,6 +1,9 @@
 #include <standalone.h>
 
-int main() {
+int main(int argc, char * argv[]) {
+
+	char path[500] = "";
+	setPath(path, argc, argv);
 
 	// Displays the startMenu, and stops the program if the user decided to.
 	int i = startMenu();
@@ -51,12 +54,14 @@ int main() {
 		
 		p = jouerCoup(p, ori, dest);
 		
-		debug
+		affpos;
 		
 		writeJS(p, evaluerScore(p));
-
 		
 	}
+
+	displayScore(p);
+	
 	
 return 0;
 }
@@ -101,6 +106,23 @@ int startMenu() {
 	system("clear");
 
 	return 0;
+}
+
+void setPath(char path[], int argc, char * argv[]) {
+
+	//choix du chemin d'enregistrement
+	if(argc>1){
+		
+		//if(argv[])
+		int i;
+
+		for(i=1; i<argc-1;i++){ 
+			strcat(path,argv[i]); strcat(path,"/"); 
+		}
+		strcat(path,argv[i]);
+	}
+	else strcat(path, "../web/data/refresh-data.js");
+	cheminjs;
 }
 
 
@@ -168,4 +190,28 @@ int setBonus(T_Position p, octet bonus, int team) {
 	printf(GRN"Le choix a bien été pris en compte!\n\n"RESET);
 
 	return selecteur;
+}
+
+void displayScore(T_Position p) {
+
+	//afficher qui  a gagner + les point
+	if(evaluerScore(p).nbJ==evaluerScore(p).nbR)//si egalité
+	{
+		if(evaluerScore(p).nbJ5<evaluerScore(p).nbR5) {
+			printf("\nRouge gagnant\n");
+			return; 
+		} else {
+			printf("\njaune gagnant\n"); 
+			return;
+		}
+	}
+
+	if(evaluerScore(p).nbJ<evaluerScore(p).nbR) {
+		printf("\nRouge gagnant\n"); 
+		return;
+	} else { 
+		printf("\njaune gagnant\n");
+		return;
+	}
+
 }

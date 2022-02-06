@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <avalam.h>
 #include <topologie.h>
+#include <string.h>
 
 #ifdef __DEBUG__
-	#define debug afficherPosition(p);
-
+	#define affpos afficherPosition(p)
+	#define cheminjs puts(chemin)
 #else
-	#define debug
-	
+	#define affpos
+	#define cheminjs
 #endif
 
 // Basic colors displayed in the command interface
@@ -35,3 +36,7 @@ int setBonus(T_Position p, octet bonus, int team);
 
 /// Writes every game information in the ../web/data directory on a JS file.
 void writeJS(T_Position p,  T_Score score);
+
+void displayScore(T_Position p);
+
+void setPath(char path[], int argc, char * argv[]);
