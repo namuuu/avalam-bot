@@ -6,7 +6,7 @@
 
 #ifdef __DEBUG__
 	#define affpos afficherPosition(p)
-	#define cheminjs puts(chemin)
+	#define cheminjs puts(path)
 #else
 	#define affpos
 	#define cheminjs
@@ -31,8 +31,8 @@ int startMenu();
 //
 // T_Position : Board of the game
 // Bonus : Which bonus is modified (ex: p.evolution.bonusJ)
-// Team : Which team is considered, either Yellow (1) or Red (2)
-int setBonus(T_Position p, octet bonus, int team);
+// Locked : Prevents the player to put the malus on the case already taken by the bonus ; -1 is used when every position is safe.
+int setBonus(T_Position p, octet *bonus, int team, int locked);
 
 /// Writes every game information in the ../web/data directory on a JS file.
 void writeJS(T_Position p,  T_Score score);
