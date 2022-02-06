@@ -4,6 +4,7 @@
 extern T_Voisins topologie[NBCASES]; 
 T_Position positionInitiale; 
 
+
 octet nbVoisins(octet numCase) {
 	// renvoie le nombre de voisins d'une case
 	return topologie[numCase].nb; 

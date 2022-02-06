@@ -21,9 +21,12 @@
 #define CYN   "\x1B[36m"
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
+#define DEBUG "\x1B[95m"
+
+char path[500] = "../web/data/refresh-data.js";
 
 // Menu that is displayed before the beginning of a game.
-int startMenu();
+int startMenu(char path[]);
 
 /// Sets every bonus at the right place for every team.
 // The usage of this fonction is used 4 times in the setup of the game, and should respect the following pattern :
@@ -34,7 +37,7 @@ int startMenu();
 // Locked : Prevents the player to put the malus on the case already taken by the bonus ; -1 is used when every position is safe.
 int setBonus(T_Position p, octet *bonus, int team, int locked);
 
-/// Writes every game information in the ../web/data directory on a JS file.
+/// Writes every game information in the selected path on a JS file.
 void writeJS(T_Position p,  T_Score score);
 
 void displayScore(T_Position p);

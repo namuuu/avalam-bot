@@ -2,7 +2,6 @@
 
 int main(int argc, char * argv[]) {
 
-	char path[500] = "";
 	setPath(path, argc, argv);
 
 	T_Position p;
@@ -14,7 +13,7 @@ int main(int argc, char * argv[]) {
 	writeJS(p, evaluerScore(p));
 
 	// Displays the startMenu, and stops the program if the user decided to.
-	int i = startMenu();
+	int i = startMenu(path);
 	if(i == 1) {
 		return 0;
 	}
@@ -72,7 +71,7 @@ return 0;
 
 
 // Menu that is displayed before the beginning of a game.
-int startMenu() {
+int startMenu(char path[]) {
 	system("clear");
 
 	int choice = 0;
@@ -84,6 +83,7 @@ int startMenu() {
 		printf("\n\t" YEL "2" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !");
 
 		printf("\n\t" YEL "9" RESET " - Quitter le jeu\n");
+		printf1(DEBUG"\n DEBUG > Current save path: %s\n"RESET, path);
 		printf("\nOption choisie: "CYN);
 
 		scanf("%d", &choice);
@@ -95,7 +95,7 @@ int startMenu() {
 			break;
 		case 2:
 			printf(MAG"\n\tOuverture de ton navigateur..\n");
-			system("xdg-open file:///home/pi/Documents/Projet%20MDJ/avalam-bot/web/avalam-refresh.html");
+			system("xdg-open ../web/avalam-refresh.html");
 			break;
 		case 9:
 			printf(MAG"Arrêt du programme...\n\n" GRN "Merci d'avoir joué !\n\n" RESET);
@@ -116,7 +116,8 @@ void setPath(char path[], int argc, char * argv[]) {
 
 	//choix du chemin d'enregistrement
 	if(argc>1){
-		
+		path = "";
+
 		//if(argv[])
 		int i;
 
@@ -125,15 +126,15 @@ void setPath(char path[], int argc, char * argv[]) {
 		}
 		strcat(path,argv[i]);
 	}
-	else strcat(path, "../web/data/refresh-data.js");
-	cheminjs;
 }
 
 
 // Writes every game information in the ../web/data directory on a JS file.
 void writeJS(T_Position p, T_Score score) {
+	printf1(DEBUG"\nDEBUG > Save data on %s\n"RESET, path);
+
 	FILE * fp;
-	fp = fopen("../web/data/refresh-data.js", "w+");
+	fp = fopen(path, "w+");
 	
 	fputs("traiterJson({\n", fp);
 	

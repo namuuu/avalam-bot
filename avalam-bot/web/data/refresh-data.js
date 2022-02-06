@@ -1,10 +1,10 @@
 traiterJson({
 "trait":1,
-"scoreJ":25,
+"scoreJ":24,
 "scoreJ5":0,
 "scoreR":24,
 "scoreR5":0,
-"bonusJ":3,
+"bonusJ":255,
 "malusJ":255,
 "bonusR":255,
 "malusR":255,
