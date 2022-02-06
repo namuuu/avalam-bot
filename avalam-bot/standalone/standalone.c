@@ -182,7 +182,7 @@ int setBonus(T_Position p, octet bonus, int team) {
 	do {
 		printf("Position du bonus: ");
 		scanf("%d",&selecteur);
-		p.evolution.bonusJ = selecteur;
+		bonus = selecteur;
 	} while(p.cols[selecteur].couleur != team);
 
 	writeJS(p, evaluerScore(p));
