@@ -5,19 +5,21 @@ int main(int argc, char * argv[]) {
 	char path[500] = "";
 	setPath(path, argc, argv);
 
+	T_Position p;
+	T_ListeCoups l;
+	int ori, dest;
+
+	p = getPositionInitiale();
+
+	writeJS(p, evaluerScore(p));
+
 	// Displays the startMenu, and stops the program if the user decided to.
 	int i = startMenu();
 	if(i == 1) {
 		return 0;
 	}
 	
-	T_Position p; 
-	T_ListeCoups l; 
-	int ori,dest;
 	
-	p = getPositionInitiale();
-	
-	writeJS(p, evaluerScore(p));
 
 	//	initialisation des bonus malus
 	
@@ -29,16 +31,18 @@ int main(int argc, char * argv[]) {
 	p.evolution.malusJ =-1;
 		
 	printf(WHT"Sélection du "YEL"Bonus Jaune"RESET"\n");
-	setBonus(p, p.evolution.bonusJ, JAU);
+	setBonus(p, &p.evolution.bonusJ, JAU, -1);
 	
 	printf(WHT"Sélection du "RED"Bonus Rouge"RESET"\n");
-	setBonus(p, p.evolution.bonusR, ROU);
+	setBonus(p, &p.evolution.bonusR, ROU, -1);
 	
 	printf(WHT"Sélection du "RED"Malus Rouge"RESET"\n");
-	setBonus(p, p.evolution.malusR, ROU);
+	setBonus(p, &p.evolution.malusR, ROU, p.evolution.bonusR);
 	
 	printf(WHT"Sélection du "YEL"Malus Jaune"RESET"\n");
-	setBonus(p, p.evolution.malusJ, JAU);
+	setBonus(p, &p.evolution.malusJ, JAU, p.evolution.bonusJ);
+
+	writeJS(p, evaluerScore(p));
 
 
 	//	Boucle de jeu
@@ -176,16 +180,16 @@ void writeJS(T_Position p, T_Score score) {
 }
 
 /// Sets every bonus at the right place for every team.
-int setBonus(T_Position p, octet bonus, int team) {
+int setBonus(T_Position p, octet *bonus, int team, int locked) {
 	int selecteur;
+
+	writeJS(p, evaluerScore(p));
 
 	do {
 		printf("Position du bonus: ");
 		scanf("%d",&selecteur);
-		bonus = selecteur;
-	} while(p.cols[selecteur].couleur != team);
-
-	writeJS(p, evaluerScore(p));
+		*bonus = selecteur;
+	} while(p.cols[selecteur].couleur != team || selecteur == locked);
 
 	printf(GRN"Le choix a bien été pris en compte!\n\n"RESET);
 
