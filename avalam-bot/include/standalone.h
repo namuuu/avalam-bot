@@ -23,10 +23,16 @@
 #define RESET "\x1B[0m"
 #define DEBUG "\x1B[95m"
 
+#define STR_TEAM_NAME(team) ((team == ROU) ? RED"Rouge"RESET : YEL"Jaune"RESET)
+#define STR_TEAM_COL(team) ((team == ROU) ? RED : YEL)
+
+// Path of the current save file.
 char path[500] = "../web/data/refresh-data.js";
 
 // Menu that is displayed before the beginning of a game.
 int startMenu(char path[]);
+
+int gameMenu(T_Position p);
 
 /// Sets every bonus at the right place for every team.
 // The usage of this fonction is used 4 times in the setup of the game, and should respect the following pattern :
@@ -40,6 +46,11 @@ int setBonus(T_Position p, octet *bonus, int team, int locked);
 /// Writes every game information in the selected path on a JS file.
 void writeJS(T_Position p,  T_Score score);
 
+/// Displays the current score of the game.
 void displayScore(T_Position p);
 
+/// Changes the path of the save file to a custom one.
+// path : Path of the current save file.
+// argc : Lenght of the new path
+// argv : The new path
 void setPath(char path[], int argc, char * argv[]);
