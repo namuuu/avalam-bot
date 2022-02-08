@@ -1,3 +1,5 @@
+LD_LIBRARY_PATH = "../libavalam"
+
 all: install
 
 # Pour activer le mode debugage, il faut définir __DEBUG__

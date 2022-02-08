@@ -2,16 +2,11 @@
 
 int main(int argc, char * argv[]) {
 
-	// Changes the path_standalone if main() has arguments
-	setPath(path_standalone, argc, argv);
-
 	T_Position p;
 	int ori, dest;
 
 	// Sets the board to default values based on what's in "topologie.h".
 	p = getPositionInitiale();
-
-	writeJS(p, evaluerScore(p));
 
 	// Displays the startMenu, and stops the program if the user decided to.
 	int i = startMenu();
@@ -103,15 +98,17 @@ int startMenu() {
 	system("clear");
 
 	int choice = 0;
+	char custom_path[500];
 
 	while(choice != 1) {
 		printf("\n\t\tAVALAM - créé par L.A.N.A\n");
 		printf("\n Sélectionne une "YEL"option !\n"RESET);
 		printf("\n\t" YEL "1" RESET " - Lance la partie !");
 		printf("\n\t" YEL "2" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !");
+        printf("\n\t" YEL "3" RESET " - Sauvegarder la partie dans un fichier personnalisé !");
 
 		printf("\n\t" YEL "9" RESET " - Quitter le jeu\n");
-		printf1(DEBUG"\n DEBUG > Current save path_standalone: %s\n"RESET, path_standalone);
+		printf2(DEBUG"\n DEBUG > Current save path: %s%s\n"RESET, path_diag, diag_file);
 		printf("\nOption choisie: "CYN);
 
 		scanf("%d", &choice);
@@ -125,6 +122,11 @@ int startMenu() {
 			printf(MAG"\n\tOuverture de ton navigateur..\n");
 			system("xdg-open ../web/avalam-refresh.html");
 			break;
+        case 3:
+			printf(RESET"\nNom du fichier: "CYN);
+			scanf("%s", custom_path);
+    		setCustomPath(diag_file, custom_path);
+            break;
 		case 9:
 			printf(MAG"Arrêt du programme...\n\n" GRN "Merci d'avoir joué !\n\n" RESET);
 			return 1;
@@ -162,26 +164,26 @@ int gameMenu(T_Position p) {
 
 
 
-void setPath(char path_standalone[], int argc, char * argv[]) {
-	if(argc>1){
-		path_standalone = "";
+void setCustomPath(char path[], char new[]) {
 
-		int i;
-
-		for(i=1; i<argc-1;i++){ 
-			strcat(path_standalone,argv[i]); strcat(path_standalone," "); 
-		}
-		strcat(path_standalone,argv[i]);
+	if(strlen(new)>=1){
+        strcpy(path, new);
+        strcat(path, ".js");
 	}
 }
 
 
 // Writes every game information in the ../web/data directory on a JS file.
 void writeJS(T_Position p, T_Score score) {
-	printf1(DEBUG"\nDEBUG > Save data on %s\n"RESET, path_standalone);
+	printf2(DEBUG"\nDEBUG > Save data on %s%s\n"RESET, path_diag, diag_file);
+
+    char path[500];
+
+    strcpy(path, path_diag);
+    strcat(path, diag_file);
 
 	FILE * fp;
-	fp = fopen(path_standalone, "w+");
+	fp = fopen(path, "w+");
 	
 	fputs("traiterJson({\n", fp);
 	
