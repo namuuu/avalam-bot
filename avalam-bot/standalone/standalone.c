@@ -171,7 +171,7 @@ void setPath(char path[], int argc, char * argv[]) {
 		int i;
 
 		for(i=1; i<argc-1;i++){ 
-			strcat(path,argv[i]); strcat(path,"/"); 
+			strcat(path,argv[i]); strcat(path," "); 
 		}
 		strcat(path,argv[i]);
 	}
