@@ -13,10 +13,10 @@ install: libavalam.so libavalam.a
 	cp libavalam.so libavalam.a ../build/lib
 
 libavalam.so : libavalam.c
-	gcc $(DEBUG) $(INC) -shared -fPIC libavalam.c -o libavalam.so
+	gcc -Wall $(DEBUG) $(INC) -shared -fPIC libavalam.c -o libavalam.so
 
 libavalam.a : libavalam.c
-	gcc $(DEBUG) $(INC) -c  libavalam.c -o libavalam.o
+	gcc -Wall $(DEBUG) $(INC) -c  libavalam.c -o libavalam.o
 	ar qvs libavalam.a  libavalam.o
 
 clean: 
