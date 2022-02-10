@@ -15,7 +15,7 @@ int main(int argc, char * argv[]) {
 
 	// Displays the startMenu, and stops the program if the user decided to.
 	int i = startMenu();
-	if(i == 1) {
+	if(i == 9) {
 		return 0;
 	}
 	

@@ -28,8 +28,6 @@
 
 // Path of the current save file.
 char path_standalone[500] = "../web/data/refresh-data.js";
-char path_diag[500] = "../web/data/";
-char diag_file[500] = "fic.js";
 
 // Menu that is displayed before the beginning of a game.
 int startMenu();
@@ -56,6 +54,3 @@ void displayScore(T_Position p);
 // argc : Lenght of the new path
 // argv : The new path
 void setPath(char path[], int argc, char * argv[]);
-
-//
-void setCustomPath(char path[], char new[]);
