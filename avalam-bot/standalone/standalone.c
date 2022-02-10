@@ -1,4 +1,21 @@
+/**************************************************************************/
+/*Fichier: lanalib.c							   	*/
+/*NOM :Robert Arthur Merabet Nawel Husson Augustin David Leevan				 						*/
+/*GROUPE: E7  */
+/* Version : 1.0									*/
+/*Date : 09/02/2022							   		*/
+/***************************************************************************/
+
 #include <lanalib.h>
+/***************************************************************************/
+/* NOM FONCTION : fonction principale					           */
+/* DESCRIPTION : Dans cette fonction, Il demande les positions des bonus et des malus en les positionnant dans un premier temps dans la position -1.Puis il propose un menu pour demander se que l'utilisateur veut faire.
+Dans la première case,il propose de jouer en demandant le deplacement du pion.Dans le deuxième case, il demande d'afficher la position. Et dans le troisième case, il ouvre dans le navigateur. Dans le dernier case, il arrête le programme. */
+/* Retourne :  0       			   */
+/* Effets de bords : Saisie au clavier                                     */
+/* Parametres en entree :Ttabpers Rep, int der 						   */
+/* Parametres en sortie :  entier                                                */
+/***************************************************************************/
 
 int main(int argc, char * argv[]) {
 
@@ -15,7 +32,7 @@ int main(int argc, char * argv[]) {
 
 	// Displays the startMenu, and stops the program if the user decided to.
 	int i = startMenu();
-	if(i == 9) {
+	if(i == 1) {
 		return 0;
 	}
 	
@@ -96,6 +113,13 @@ int main(int argc, char * argv[]) {
 	
 return 0;
 }
+/***************************************************************************/
+/* NOM FONCTION : startMenu					           */
+/* DESCRIPTION : Il propose un menu dans lequel il propose 3 choix (1-lancer la partie et 2-Ouvre la partie graphique du jeu dans ton navigateur ! et 9-Quitter le jeu)      */
+/* Retourne : 0     			   */
+/* Parametres en entree :char path[]						   */
+/* Parametres en sortie :                                                 */
+/***************************************************************************/
 
 
 // Menu that is displayed before the beginning of a game.
@@ -139,42 +163,72 @@ int startMenu() {
 
 	return 0;
 }
+/***************************************************************************/
+/* NOM FONCTION : gameMenu					           */
+/* DESCRIPTION :La fonction affiche le menu du jeu.Il propose 4 choix
+1- Jouer un coup et 2- Afficher toutes les positions et 3- Ouvre la partie graphique du jeu dans ton navigateur 4-    */
+/* Retourne :  choice       			   */
+/* Parametres en entree : T_Position p						   */
+/* Parametres en sortie : choice->entier                                                  */
+/***************************************************************************/
 
 int gameMenu(T_Position p) {
 	int choice = 0;
 
 	printf(RESET"\n\t\tAu tour de: %s\n", STR_TEAM_NAME(p.trait));
-	printf("\n Sélectionne une "CYN"option !\n"RESET);
+
+	/*printf("\n Sélectionne une "CYN"option !\n"RESET);
 	printf("\n\t" CYN "1" RESET " - Jouer un coup\n");
 
 	printf("\n\t" CYN "6" RESET " - Afficher toutes les positions");
 	printf("\n\t" CYN "7" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !\n");
 
 	printf("\n\t" CYN "9" RESET " - Quitter le jeu\n");
+	*/
+
 	printf("\nOption choisie: %s", STR_TEAM_COL(p.trait));
 
-	scanf("%d", &choice);
+	/*scanf("%d", &choice);
+	printf(RESET);*/
 
-	printf(RESET);
-
-	return choice;
+	return 1;
 }
+/***************************************************************************/
+/* NOM FONCTION : setPath					           */
+/* DESCRIPTION :La fonction a pour principe de mettre a jour le chemin d'enregistrement
+	elle concane les arguments dans le cas ou il y a présence d'espace*/
+/* Retourne :Rien         			   */
+/* Parametres en entree :char path[], int argc, char * argv[]					   */
+/* Parametres en sortie :Aucun                                                 */
+/***************************************************************************/
 
 
 
 void setPath(char path_standalone[], int argc, char * argv[]) {
+
 	if(argc>1){
-		path_standalone = "";
-
+		strcpy(path_standalone,"");
+		
 		int i;
-
-		for(i=1; i<argc-1;i++){ 
+		printf("%d\n",argc);
+		for(i=1; i<argc-1;i++){
 			strcat(path_standalone,argv[i]); strcat(path_standalone," "); 
 		}
+		
 		strcat(path_standalone,argv[i]);
+
 	}
+
 }
 
+
+/***************************************************************************/
+/* NOM FONCTION : writeJS					           */
+/* DESCRIPTION : A l'aide de fputs et fprintf et des variables, on écrit dans le JS.      */
+/* Retourne :rien    			   */
+/* Parametres en entree :T_Position p, T_Score score						   */
+/* Parametres en sortie : fichier.js avec le contenue                                               */
+/***************************************************************************/
 
 // Writes every game information in the ../web/data directory on a JS file.
 void writeJS(T_Position p, T_Score score) {
@@ -227,6 +281,14 @@ void writeJS(T_Position p, T_Score score) {
 	fclose(fp); 
 }
 
+/***************************************************************************/
+/* NOM FONCTION : setBonus				           */
+/* DESCRIPTION :la fonction demande la position des bonus et malus et produit une boucle infini tant que la position donné                                             */
+/* Retourne :entier : selecteur         			   */
+/* Parametres en entree :T_Position p, octet *bonus, int team, int locked						   */
+/* Parametres en sortie :                                                 */
+/***************************************************************************/
+
 /// Sets every bonus at the right place for every team.
 int setBonus(T_Position p, octet *bonus, int team, int locked) {
 	int selecteur;
@@ -264,6 +326,15 @@ int setBonus(T_Position p, octet *bonus, int team, int locked) {
 	return selecteur;
 }
 
+
+
+/***************************************************************************/
+/* NOM FONCTION : displayScore					           */
+/* DESCRIPTION : Il compare les scores est si il y a égalité.Il va réutilisé une boucle if pour comparer les piles de 5.      */
+/* Retourne :affiche le gagnant      			   */
+/* Parametres en entree :T_Position p					   */
+/* Parametres en sortie :pas de sortie                                                */
+/***************************************************************************/
 void displayScore(T_Position p) {
 
 	//afficher qui  a gagner + les point
