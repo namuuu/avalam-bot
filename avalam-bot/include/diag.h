@@ -16,7 +16,8 @@
 #define DEBUG "\x1B[95m"
 
 char path[500] = "../web/data/";
-char filename[500] = "fic";
+char filename[500] = "fic.js";
 
-int writeJS(char diag[], char fen[]);
-int formatJS(FILE * fp);
+//void writeJS(T_Position p);
+void writeJSON(T_Position p, T_Score score, char *chemin ,char *argv[], char description[]);
+int FEN(T_Position p, char argv[]);
