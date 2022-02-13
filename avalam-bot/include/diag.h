@@ -18,5 +18,8 @@
 char path[500] = "../web/data/";
 char filename[500] = "fic";
 
-int writeJS(char diag[], char fen[]);
-int formatJS(FILE * fp);
+void writeJS(T_Position p, T_Score score, char notes[], char diag[]);
+int readNotes(char notes[]);
+int readFEN(T_Position *p, char argv[], char trait[]);
+
+char *str_replace(char *orig, char *rep, char *with);

@@ -1,7 +1,6 @@
 #define FAUX 0
 #define VRAI 1
 
-
 // Vainqueurs des parties et joueurs au trait 
 #define EGALITE 0
 #define VIDE 0
