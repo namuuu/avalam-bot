@@ -8,7 +8,7 @@ int main(int argc, char * argv[]){
 	char chemin[UNKNOWN]="diag.js";
 
 	// Stops the program if not enough arguments
-	if(argc==1){
+	if(argc<=3){
 		printf(RED "Mauvais arguments ! \n "RESET"Arguments : <diag> <fen>\n");
         return 1;
 	}
@@ -53,7 +53,7 @@ int readFEN(T_Position *p, char argv[], char trait[]) {
     p->evolution.malusJ=-1;
     p->evolution.malusR=-1;
     i=0;
-    
+    if(argv!=NULL){
     while(argv[j]!='\0') {
         
        //j=j+1;
@@ -167,6 +167,7 @@ int readFEN(T_Position *p, char argv[], char trait[]) {
 	}
 
 	return 0;
+}
 }
 
 //	fonction de création de json
