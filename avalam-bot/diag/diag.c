@@ -41,7 +41,7 @@ int main(int argc, char * argv[]){
 int readFEN(T_Position *p, char argv[], char trait[]) {
     int i=0,j=0,k=0;
   	// printf("a=%c",argv[0]);
- 	char ch;
+
     
     for(i=0;i<48;i++){
         p->cols[i].nb=0;
@@ -127,13 +127,36 @@ int readFEN(T_Position *p, char argv[], char trait[]) {
 			if(p->evolution.malusR==-1){
 				p->evolution.malusR=i+1;
 			}
-			default:
-			for(int k=0; k<argv[j+1]; k++) {
-				p->cols[i+k].couleur = 0;
-				p->cols[i+k].nb = 0;
+			break;
+			case '0'...'9':
+			if(argv[j+1]>'0'&& argv[j+1]<'9' ){
+
+					int r= (argv[j] - '0')*10  + (argv[j+1] - '0');
+					for(int k=0;k<=r;k++){
+						p->cols[i+k].couleur = 0;
+						p->cols[i+k].nb = 0;
+					}
+					j=j+1;
+					
+					while(argv[j+1]>'0'&& argv[j+1]<'9')
+					{
+						j=j+1;
+					}
+					i=i+r+1;
+			}else{
+
+				int r= (argv[j] - '0');
+				for(int k=0; k<=r; k++) {
+					p->cols[i+k].couleur = 0;
+					p->cols[i+k].nb = 0;
+				}
+				i=i+r+1;
 			}
+			
+			printf("i=%d\n",i);
 			break;
     	}
+	printf("argv[%d]=%c\n",j,argv[j]);
   	j=j+1;
     }
 
