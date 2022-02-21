@@ -74,14 +74,18 @@ int main(int argc, char * argv[]) {
 		
 				printf("\n Destination: %s"RESET, STR_TEAM_COL(p.trait));
 				scanf("%d",&dest);
+				int traitprec=p.trait;
 
 				p = jouerCoup(p, ori, dest);
 
 				system("clear");
 
 				affpos;
-
+				if (p.trait!=traitprec){
 				printf(RESET"Votre adversaire a joué: "BLU"%d -> %d\n"RESET, ori, dest);
+				}else{
+					printf(RESET"Mauvais coup!!!!! Rejoué\n");
+				}
 				break;
 			case 6:
 				system("clear");
