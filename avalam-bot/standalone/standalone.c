@@ -22,6 +22,7 @@ int main(int argc, char * argv[]) {
 	// Changes the path_standalone if main() has arguments
 	setPath(path_standalone, argc, argv);
 
+
 	T_Position p;
 	int ori, dest;
 
@@ -112,6 +113,7 @@ int startMenu() {
 
 	while(choice != 1) {
 		printf("\n\t\tAVALAM - créé par L.A.N.A\n");
+		printf("\nUtilisation du fichier %s\n",path_standalone);
 		printf("\n Sélectionne une "YEL"option !\n"RESET);
 		printf("\n\t" YEL "1" RESET " - Lance la partie !");
 		printf("\n\t" YEL "2" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !");
