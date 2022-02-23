@@ -66,47 +66,25 @@ int main(int argc, char * argv[]) {
 
 	//	Boucle de jeu
 	while(getCoupsLegaux(p).nb!=0) {
+
+
+		printf(RESET"\n\t\tAu tour de: %s\n", STR_TEAM_NAME(p.trait));
+		printf("\nOption choisie: %s", STR_TEAM_COL(p.trait));
+
 		
-		switch(gameMenu(p)) {
-			case 1:
-				printf("\nVous jouez un coup!\n\n Origine: %s"RESET, STR_TEAM_COL(p.trait));
-				scanf("%d",&ori);
+		printf("\nVous jouez un coup!\n\n Origine: %s"RESET, STR_TEAM_COL(p.trait));
+		scanf("%d",&ori);
 		
-				printf("\n Destination: %s"RESET, STR_TEAM_COL(p.trait));
-				scanf("%d",&dest);
-				int traitprec=p.trait;
+		printf("\n Destination: %s"RESET, STR_TEAM_COL(p.trait));
+		scanf("%d",&dest);
 
-				p = jouerCoup(p, ori, dest);
+		p = jouerCoup(p, ori, dest);
 
-				system("clear");
+		system("clear");
 
-				affpos;
-				if (p.trait!=traitprec){
-				printf(RESET"Votre adversaire a joué: "BLU"%d -> %d\n"RESET, ori, dest);
-				}else{
-					printf(RESET"Mauvais coup! Rejoue\n");
-				}
-				break;
-			case 6:
-				system("clear");
+		affpos;
 
-				afficherPosition(p);
-				break;
-			case 7:
-				printf(MAG"\n\tOuverture de ton navigateur..\n");
-				system("xdg-open ../web/avalam-refresh.html");
-				break;
-			case 9:
-				system("clear");
 
-				printf(MAG"Arrêt du programme...\n\n" GRN "Merci d'avoir joué !\n\n" RESET);
-				return 0;
-				break;
-			default:
-				system("clear");
-
-				printf("\nVotre option n'a pas été reconnue par le jeu!\n");
-		}
 		
 		writeJS(p, evaluerScore(p));
 		
@@ -176,27 +154,27 @@ int startMenu() {
 /* Parametres en sortie : choice->entier                                                  */
 /***************************************************************************/
 
-int gameMenu(T_Position p) {
+/*int gameMenu(T_Position p) {
 	int choice = 0;
 
 	printf(RESET"\n\t\tAu tour de: %s\n", STR_TEAM_NAME(p.trait));
 
-	/*printf("\n Sélectionne une "CYN"option !\n"RESET);
+	printf("\n Sélectionne une "CYN"option !\n"RESET);
 	printf("\n\t" CYN "1" RESET " - Jouer un coup\n");
 
 	printf("\n\t" CYN "6" RESET " - Afficher toutes les positions");
 	printf("\n\t" CYN "7" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !\n");
 
 	printf("\n\t" CYN "9" RESET " - Quitter le jeu\n");
-	*/
-
+	
 	printf("\nOption choisie: %s", STR_TEAM_COL(p.trait));
 
-	/*scanf("%d", &choice);
-	printf(RESET);*/
+	scanf("%d", &choice);
+	printf(RESET);
 
 	return 1;
-}
+}*/
+
 /***************************************************************************/
 /* NOM FONCTION : setPath					           */
 /* DESCRIPTION :La fonction a pour principe de mettre a jour le chemin d'enregistrement
