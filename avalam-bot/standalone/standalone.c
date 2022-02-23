@@ -84,7 +84,7 @@ int main(int argc, char * argv[]) {
 				if (p.trait!=traitprec){
 				printf(RESET"Votre adversaire a joué: "BLU"%d -> %d\n"RESET, ori, dest);
 				}else{
-					printf(RESET"Mauvais coup!!!!! Rejoué\n");
+					printf(RESET"Mauvais coup! Rejoue\n");
 				}
 				break;
 			case 6:
