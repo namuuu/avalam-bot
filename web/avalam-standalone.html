@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- **** H E A D **** -->
+<head>	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Avalam-standalone</title>
+
+<style>
+	table {
+		border:1px solid black;
+		padding:3px;width:60%;
+		margin:auto;	
+		text-align:center;
+	}
+
+	th,td {
+		border:1px solid black;
+		padding:3px;
+	}
+
+	#avalam{
+		width:900px;
+		height:750px;
+		margin:auto;
+		position:relative;
+	}
+	
+	.evolution {
+		background-color:black;color:white;
+		font-weight:bold;
+		padding: 2px;
+		position:absolute; 
+		border: 1px solid black;
+		border-radius: 10% 30% 50% 70%;
+	}
+
+	#palette {display:none;}
+	.rouge, .jaune {position:absolute;z-index:10; }
+	.indice {position:absolute;top:50px;left:65px;}
+	.nombre {position:absolute;top:22px;left:28px;
+		font-family:courier;font-weight:bold;font-size:18pt;}	
+	.rouge img, .jaune img {width:70px;height:70px;}
+</style>
+
+<script src="js/jquery.js"></script>
+<script src="js/avalam.js"></script>
+
+<script>
+ 
+ // version 1/02/2022
+ // TODO : règles évolution
+ 
+var position = [];
+var evolution = {bonusJ:false, malusJ:false, bonusR:false, malusR:false}; 
+var modeDeplacement = false;
+var indiceDepart=false; 
+var colDepart=false;  
+
+function showEvolution() {
+	var n,delta,sdelta; 
+	$(".evolution").remove();
+	// afficher les bonus/malus et met à jour les scores
+	for(i=0;i<48;i++) {
+		//console.log(i); 
+		delta = (evolution.bonusJ===i)+(evolution.bonusR===i)-(evolution.malusJ===i)-(evolution.malusR===i); 
+		//console.log(delta); 
+		if (delta>0) sdelta = "+"+delta; 
+		if (delta<0) sdelta = delta;  
+		
+		n = $("<div>").append(sdelta).addClass("evolution");
+		n.offset({left:(topo[i].cx-9), top:topo[i].cy-110});
+		if (delta !=0) {
+			//console.log(); 
+			$("#avalam").append(n);
+		}
+	}
+}
+
+function updateScores() {
+	//console.log(position);
+	var i; 
+	var nbJ=0, nbJ5=0, nbR=0, nbR5=0;
+	for(i=0;i<48;i++) {
+		if ((position[i].col == "1") && (position[i].n >0))  { // jaune 
+			nbJ++; 
+			if (position[i].n == 5) nbJ5++; 
+		}
+		if ((position[i].col == "2") && (position[i].n >0)) { // rouge 
+			nbR++; 
+			if (position[i].n == 5) nbR5++; 
+		}
+	}
+	
+	// mettre à jour les scores evolution
+	if (position[evolution.bonusR].col == "1") {console.log("incJ"); nbJ++;}
+	if (position[evolution.bonusR].col == "2") {console.log("incR"); nbR++;} 
+	if (position[evolution.bonusJ].col == "1") {console.log("incJ"); nbJ++;}
+	if (position[evolution.bonusJ].col == "2") {console.log("incR"); nbR++;}
+	if (position[evolution.malusR].col == "1") {console.log("decJ"); nbJ--;}
+	if (position[evolution.malusR].col == "2") {console.log("decR"); nbR--;}
+	if (position[evolution.malusJ].col == "1") {console.log("decJ"); nbJ--;}
+	if (position[evolution.malusJ].col == "2") {console.log("decR"); nbR--;}
+	
+	$("#scoreJ").text(nbJ);
+	$("#scoreJ5").text(nbJ5);
+	$("#scoreR").text(nbR);
+	$("#scoreR5").text(nbR5);
+}
+
+
+$(document).ready(function(){
+	var jaune = $(".jaune"); 
+	var rouge = $(".rouge"); 
+	var n; 
+
+
+	$(".col").click(function(){
+		var indice = $(this).data("indice");
+		console.log("couleur:" + position[indice].col + " nombre:" + position[indice].n);
+
+		if (!modeDeplacement) { // debut deplacement 
+			console.log("debut deplacement");
+			modeDeplacement = true; 
+			indiceDepart = indice;
+			colDepart = $(this);
+			$(this).data({"deplacement":true});
+			return; 
+		} // FIN:debut déplacement
+		else { // fin déplacement 
+			if (indice == indiceDepart){
+				// annulation
+				colDepart.data({"deplacement":false});
+				console.log("annulation");
+				modeDeplacement = false;
+				$(".col").mouseout();
+				return; 
+			}
+			else { // validation
+				console.log("fin de deplacement de " + indiceDepart + " vers " + indice);
+				// depart: combien, col ? 
+				console.log("depart: n=" + position[indiceDepart].n + "col=" + position[indiceDepart].col);
+				// arrivee : combien, col ? 
+				console.log("arrivee: n=" + position[indice].n + "col=" + position[indice].col);
+
+				// Vérification légal (nb) ?
+				if (position[indiceDepart].n + position[indice].n > 5) {
+					console.log("interdiction (nb) ! ");
+					colDepart.data({"deplacement":false});
+					modeDeplacement = false;
+					$(".col").mouseout();
+					return; 
+				}
+
+				// Vérification légal (adj) ?
+				if (topo[indiceDepart].adj.indexOf(indice) == -1) {
+					console.log("interdiction (adj) ! ");
+					colDepart.data({"deplacement":false});
+					modeDeplacement = false;
+					$(".col").mouseout();
+					return; 
+				}
+
+				// suppression col. depart 
+				//colDepart.hide("slow");
+				//colDepart.offset({left:$(this).data("left"), top:$(this).data("top")});
+				//colDepart.show("slow");
+
+				colDepart.remove(); // TODO: On pourrait juste cacher...
+
+				// suppression col arrivee - remplacement par pile de départ ! 
+				$(this).removeClass("jaune").removeClass("rouge");  
+				if (position[indiceDepart].col == "1") {
+					$(this).addClass("jaune"); 
+					$("img",$(this)).attr("src","ressources/jaune.png");
+					position[indice].col = "1";
+				} else {
+					$(this).addClass("rouge");
+					$("img",$(this)).attr("src","ressources/rouge.png");
+					position[indice].col = "2";
+				}
+					
+				$(".indice",$(this)).html(indice);
+			
+				position[indice].n = position[indiceDepart].n + position[indice].n;
+				position[indiceDepart].col = false;
+				position[indiceDepart].n = 0; 
+				
+				// mise à jour de evolution
+				if (evolution.bonusR == indiceDepart) evolution.bonusR=indice;
+				if (evolution.bonusJ == indiceDepart) evolution.bonusJ=indice;
+				if (evolution.malusR == indiceDepart) evolution.malusR=indice;
+				if (evolution.malusJ == indiceDepart) evolution.malusJ=indice;
+				
+				//console.log(evolution);
+				showEvolution();
+				updateScores();
+				
+				if ($("#trait").text() == "Jaunes") $("#trait").text("Rouges");
+				else  $("#trait").text("Jaunes");
+				
+				$(".nombre",$(this)).html(position[indice].n);
+
+				console.log(JSON.stringify(position));
+
+				modeDeplacement = false;
+				$(".col").mouseout();
+
+			}	//FIN:validation			
+		} // FIN:fin deplacement
+	});
+
+
+	$(document).on("mouseover",".jaune",function() {
+		if (position[$(this).data("indice")].n == 5) return; 
+		if (!modeDeplacement)
+			$("img",$(this)).attr("src","ressources/jaune2.png");
+		else if (topo[indiceDepart].adj.indexOf($(this).data("indice")) != -1)
+			$("img",$(this)).attr("src","ressources/jaune2.png");
+	});
+	$(document).on("mouseover",".rouge",function() {
+		if (position[$(this).data("indice")].n == 5) return;
+		if (!modeDeplacement)
+			$("img",$(this)).attr("src","ressources/rouge2.png");
+		else if (topo[indiceDepart].adj.indexOf($(this).data("indice")) != -1)
+			$("img",$(this)).attr("src","ressources/rouge2.png");
+	});
+	$(document).on("mouseout",".jaune",function() {
+		// on désactive ceux que l'on veut SAUF celui qui est en cours de déplacement 
+		if ((!modeDeplacement) || (indiceDepart != $(this).data("indice")))
+			$("img",$(this)).attr("src","ressources/jaune.png");
+	});
+	$(document).on("mouseout",".rouge",function() {
+		if ((!modeDeplacement) || (indiceDepart != $(this).data("indice")))
+			$("img",$(this)).attr("src","ressources/rouge.png");
+	});
+
+
+	for(i=0;i<topo.length;i++) {
+		if (topo[i].col == "2") 
+			n = rouge.clone(true);  
+		else 
+			n = jaune.clone(true);  
+
+		n.offset({left:(topo[i].cx-82), top:topo[i].cy-139});
+		n.append('<div class="indice">' + i + '</div>');
+		pos = n.offset();
+		n.data({indice:i, left:pos.left, top:pos.top});
+		$("#avalam").append(n);
+		position.push({n:1,col:topo[i].col }); 
+	}
+
+	console.log(position);
+
+/* nb : les coordonnées sont décalées d'un vecteur (-47,-104)
+les coordonnées correspondent aux centres, en css, on place le côté haut-gauche 
+=> (-82,-139)
+*/
+
+	window.setTimeout(initEvolution,100, 1);
+	
+
+});
+
+function initEvolution(ordre) {
+
+	// TODO : traiter cas annulation par ESC
+	
+	switch(ordre) {
+		case 1: 
+		do { 
+			evolution.bonusJ = parseInt(prompt("Indice Bonus Jaune ?"));
+			console.log(evolution.bonusJ );
+			if ( isNaN(evolution.bonusJ) || (evolution.bonusJ  <0) || (evolution.bonusJ  >=48) || (topo[evolution.bonusJ].col == "2") ){
+				evolution.bonusJ = false;
+				alert("Indice incorrect pour un pion Jaune !");
+			}
+		} while(evolution.bonusJ ===false );
+		
+		showEvolution();
+		window.setTimeout(initEvolution,100, 2);
+		break;
+		
+		case 2 : 
+		do { 
+			evolution.bonusR = parseInt(prompt("Indice Bonus Rouge ?"));
+			if ( isNaN(evolution.bonusR) || (evolution.bonusR  <0) || (evolution.bonusR  >=48) || (topo[evolution.bonusR].col == "1") ){
+				evolution.bonusR = false;
+				alert("Indice incorrect pour un pion Rouge !");
+			}
+		} while(evolution.bonusR ===false );
+		showEvolution();
+		window.setTimeout(initEvolution,100, 3);
+		break;
+		
+		case 3 : 
+		do { 
+			evolution.malusR = parseInt(prompt("Indice Malus Rouge ?"));
+			if ( isNaN(evolution.malusR) || (evolution.malusR  <0) || (evolution.malusR  >=48) || (topo[evolution.malusR].col == "1") || (evolution.malusR == evolution.bonusR) ){
+				evolution.malusR = false;
+				alert("Indice incorrect pour un pion Rouge !");
+			}
+		} while(evolution.malusR ===false );
+		
+		showEvolution();
+		window.setTimeout(initEvolution,100, 4);
+		break;
+		
+		case 4: 
+		do { 
+			evolution.malusJ = parseInt(prompt("Indice Malus Jaune ?"));
+			if ( isNaN(evolution.malusJ) || (evolution.malusJ  <0) || (evolution.malusJ  >=48) || (topo[evolution.malusJ].col == "2") || (evolution.malusJ == evolution.bonusJ) ){
+				evolution.malusJ = false;
+				alert("Indice incorrect pour un pion Jaune !");
+			}
+		} while(evolution.malusJ ===false );
+		
+		console.log(evolution);
+		showEvolution();
+		updateScores();
+		
+	} // fin switch
+	
+	//prompt("Indice Malus Jaune ?");
+	//prompt("Indice Bonus Rouge ?");
+	//prompt("Indice Malus Rouge ?");
+	//doivent etre des pions de la meme couleur ! 
+	
+
+}
+
+</script>
+
+</head>
+
+<body>
+
+
+<h1>Avalam-standalone</h1>
+
+<table>
+<tr>
+<th>Trait</th><th>Jaunes</th><th>Rouges</th>
+</tr>
+<tr>
+<td><span id="trait">Jaunes</span></td>
+<td> <span id="scoreJ">24</span> (<span id="scoreJ5">0</span>)</td>
+<td> <span id="scoreR">24</span> (<span id="scoreR5">0</span>)</td>
+</tr>
+</table>
+
+
+<div id="avalam">
+	<img src="ressources/avalam_numerote.png" />
+</div>
+
+
+<div id="palette">
+	<div class="jaune col">
+		<img src="ressources/jaune.png" />	
+		<div class="nombre"></div>	
+	</div>
+	<div class="rouge col">
+		<img src="ressources/rouge.png" />
+		<div class="nombre"></div>
+	</div>
+</div>
+
+</body>
+
