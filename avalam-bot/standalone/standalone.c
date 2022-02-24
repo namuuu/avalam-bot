@@ -158,22 +158,16 @@ int startMenu() {
 
 /*int gameMenu(T_Position p) {
 	int choice = 0;
-
 	printf(RESET"\n\t\tAu tour de: %s\n", STR_TEAM_NAME(p.trait));
-
 	printf("\n Sélectionne une "CYN"option !\n"RESET);
 	printf("\n\t" CYN "1" RESET " - Jouer un coup\n");
-
 	printf("\n\t" CYN "6" RESET " - Afficher toutes les positions");
 	printf("\n\t" CYN "7" RESET " - Ouvre la partie graphique du jeu dans ton navigateur !\n");
-
 	printf("\n\t" CYN "9" RESET " - Quitter le jeu\n");
 	
 	printf("\nOption choisie: %s", STR_TEAM_COL(p.trait));
-
 	scanf("%d", &choice);
 	printf(RESET);
-
 	return 1;
 }*/
 
