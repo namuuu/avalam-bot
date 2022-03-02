@@ -160,47 +160,52 @@ int readFEN(T_Position *p, char argv[]) {
 			case 'b':
 			if(p->evolution.bonusJ==255){
 				p->evolution.bonusJ=i-1;
+				printf("%d",i);
 			}
 			break;
 			case 'B':
 			if(p->evolution.bonusR==255){
 				p->evolution.bonusR=i-1;
+				printf("%d",i);
 			}
 			break;
 			case 'm':
 			if(p->evolution.malusJ==255){
 				p->evolution.malusJ=i-1;
+			printf("%d",i);
 			}
 			break;
 			case 'M':
 			if(p->evolution.malusR==255){
 				p->evolution.malusR=i-1;
+				printf("%d",i);
+				
 			}
 			break;
 			// Case where there is a number, creates
 			case '0'...'9':
-			if(argv[j+1]>'0'&& argv[j+1]<'9' ){
+			if(argv[j+1]>='0'&& argv[j+1]<='9' ){
 
 					int r= (argv[j] - '0')*10  + (argv[j+1] - '0');
-					for(int k=0;k<=r;k++){
+					//printf("%d",r);
+					for(int k=0;k<r;k++){
 						p->cols[i+k].couleur = 0;
 						p->cols[i+k].nb = 0;
 					}
-					j=j+1;
 					
 					while(argv[j+1]>'0'&& argv[j+1]<'9')
 					{
 						j=j+1;
 					}
-					i=i+r+1;
+					i=i+r;
 			}else{
 
 				int r= (argv[j] - '0');
-				for(int k=0; k<=r; k++) {
+				for(int k=0; k<r; k++) {
 					p->cols[i+k].couleur = 0;
 					p->cols[i+k].nb = 0;
 				}
-				i=i+r+1;
+				i=i+r;
 			}
 			break;
     	}
